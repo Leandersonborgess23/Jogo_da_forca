@@ -1,0 +1,118 @@
+import random
+import tkinter as tk
+
+
+lista_palavras = ['messi','halland','ronaldo','salah','benzema','vinijr','son','casemiro','pique']
+
+#função para escolher uma palavra aleatória
+def escolher_palavra():
+    return random.choice(lista_palavras)
+
+#função para atualizar a palavra na tela
+def atualizar_palavra(palavra, letras_corretas):
+    nova_palavra = ""
+    for letra in palavra:
+        if letra in letras_corretas:
+            nova_palavra += letra + " "
+        else:
+            nova_palavra += "_ "
+    return nova_palavra
+
+#função para atualizar o desenho da forca na tela
+def atualizar_forca(erros):
+    forca.delete("all")
+    if erros == 0:
+        forca.create_line(10, 180, 70, 180)
+    elif erros == 1:
+        forca.create_line(40, 180, 40, 20)
+    elif erros == 2:
+        forca.create_line(40, 20, 150, 20)
+    elif erros == 3:
+        forca.create_line(150, 20, 150, 50)
+    elif erros == 4:
+        forca.create_oval(130, 50, 170, 90)
+    elif erros == 5:
+        forca.create_line(150, 90, 150, 130)
+    else:
+        forca.create_line(150, 105, 130, 85)
+        forca.create_line(150, 105, 170, 85)
+    forca.update()
+
+#função para verificar se a letra escolhida está na palavra
+def verificar_letra(letra, palavra, letras_corretas, letras_erradas):
+    if letra in palavra:
+        letras_corretas.add(letra)
+    else:
+        letras_erradas.add(letra)
+
+#função para verificar se o jogador acertou ou errou todas as letras da palavra
+def verificar_fim_de_jogo(palavra, letras_corretas):
+    if all(letra in letras_corretas for letra in palavra):
+        return "ganhou"
+    elif len(letras_erradas) == 6:
+        return "perdeu"
+    else:
+        return None
+
+#função principal do jogo
+def jogar():
+    global letras_corretas, letras_erradas
+    letras_corretas = set()
+    letras_erradas = set()
+    palavra = escolher_palavra()
+    
+    #atualiza a interface gráfica com a palavra e a forca iniciais
+    palavra_label.config(text=atualizar_palavra(palavra, letras_corretas))
+    atualizar_forca(len(letras_erradas))
+    
+    #loop do jogo
+    while True:
+        letra = input_entry.get().lower()
+        input_entry.delete(0, "end")
+        verificar_letra(letra, palavra, letras_corretas, letras_erradas)
+        palavra_label.config(text=atualizar_palavra(palavra, letras_corretas))
+        atualizar_forca(len(letras_erradas))
+        fim_de_jogo = verificar_fim_de_jogo(palavra, letras_corretas)
+        if fim_de_jogo == "ganhou":
+            resultado_label.config(text="Parabéns! Você ganhou! A palavra era " + palavra + ".")
+            break
+        elif fim_de_jogo == "perdeu":
+            resultado_label.config(text="Que pena! Você perdeu. A palavra era " + palavra + ".")
+            break
+
+# cria a janela principal do jogo
+janela = tk.Tk()
+janela.title("Jogo da Forca")
+janela["background"] = "blue"
+
+
+# cria os widgets da interface gráfica
+titulo_label = tk.Label(janela, text="Bem vindo ao Jogo da Forca!")
+titulo_label.pack()
+
+forca = tk.Canvas(janela, width=400, height=200)
+forca.pack()
+
+texto_orientação = tk.Label(janela, text= "Adivinhe o nome do jogador de futebol", background="#ff0", foreground="#000")
+texto_orientação.pack()
+
+texto_orientação2 = tk.Label(janela, text= "Clique no botão 'Jogar' para começar o jogo", background="#ff0", foreground="#000")
+texto_orientação2.pack()
+
+palavra_label = tk.Label(janela, text="")
+palavra_label.pack()
+
+input_label = tk.Label(janela, text="Digite uma letra")
+input_label.pack()
+
+input_entry = tk.Entry(janela)
+input_entry.pack()
+
+resultado_label = tk.Label(janela, text="")
+resultado_label.pack()
+
+botao_jogar = tk.Button(janela, text="Jogar", command=jogar)
+botao_jogar.pack()
+
+# inicia a janela principal
+janela.mainloop()
